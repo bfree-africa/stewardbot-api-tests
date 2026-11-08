@@ -66,10 +66,12 @@ jobs:
         # Exit 1 means vulnerabilities were found and fails the job. Exit
         # 128 means there's no lockfile to scan, which is fine while the
         # repository holds no dependencies; anything else is an error.
+        # The runner's shell is `bash -e`, so the status is captured with
+        # `|| status=$?` rather than read afterwards.
         run: |
           set -uo pipefail
-          osv-scanner scan source --recursive .
-          status=$?
+          status=0
+          osv-scanner scan source --recursive . || status=$?
           if [ "$status" -eq 128 ]; then
             echo "::notice::No dependency lockfile in this repository; nothing to scan."
             exit 0
